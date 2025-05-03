@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Performance Prediction</title>
+    <style>
+        body {
+            background-image: url('/static/OIP.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .form-container {
+            background: rgba(247, 201, 215, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            width: 450px;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Predict Student Performance</h2>
+    <form id="predictionForm">
+        <div class="form-group">
+            <label>Hours Studied:</label>
+            <input type="number" name="Hours Studied" required>
+        </div>
+        <div class="form-group">
+            <label>Previous Scores:</label>
+            <input type="number" name="Previous Scores" required>
+        </div>
+        <div class="form-group">
+            <label>Extracurricular Activities:</label>
+            <select name="Extracurricular Activities" id="extraSelect" required></select>
+        </div>
+        <div class="form-group">
+            <label>Sleep Hours:</label>
+            <input type="number" name="Sleep Hours" required>
+        </div>
+        <div class="form-group">
+            <label>Sample Question Papers Practiced:</label>
+            <input type="number" name="Sample Question Papers Practiced" required>
+        </div>
+        <button type="submit">Predict</button>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    const token = localStorage.getItem("token");
+
+    fetch("/Extracurricular_Activities_options", {
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    })
+    .then(res => res.json())
+    .then(options => {
+        const select = document.getElementById("extraSelect");
+        options.forEach(opt => {
+            const optionEl = document.createElement("option");
+            optionEl.value = opt;
+            optionEl.textContent = opt;
+            select.appendChild(optionEl);
+        });
+    });
+
+    document.getElementById("predictionForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch("/prediction", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("result").textContent = data.result || data.message;
+        });
+    });
+</script>
+
+</body>
+</html>
